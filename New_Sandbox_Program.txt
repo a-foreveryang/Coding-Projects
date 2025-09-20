@@ -1,0 +1,188 @@
+import random
+
+PRONOUNS = ["Je (J')", "Tu", "Il/Elle/On", "Nous", "Vous", "Ils/Elles"]
+TENSES = ["Present", "Imparfait", "Passe Compose", "Conditionnel", "Futur"]
+
+#list of verbs that are exceptions
+exceptions_p = ["etre", "avoir", "aller", "voir", "devoir", "vouloir", "devenir"]
+exceptions_i = []
+exceptions_pc = ["etre", "avoir", "finir", "faire", "boire", "prendre", "savoir", "connaitre", "venir", "tenir", "vouloir", "pouvoir", "dire", "dormir", "servir", "devenir"]
+exceptions_c_f = ["aller", "faire", "avoir", "etre", "devoir", "pouvoir", "savoir", "venir", "voir", "vouloir"]
+list_of_exceptions = [exceptions_p, exceptions_i, exceptions_pc, exceptions_c_f, exceptions_c_f]
+
+#conjugation of verbs that are exceptions
+etre_p = ["suis", "es", "est", "sommes", "êtes", "sont"]
+avoir_p = ["ai", "as", "a", "avons", "avez", "ont"]
+aller_p = ["vais", "vas", "va", "allons", "allez", "vont"]
+voir_p = ["vois", "vois", "voit", "voyons", "voyez", "voient"]
+devoir_p = ["dois", "dois", "doit", "devons", "devez", "doivent"] 
+vouloir_p = ["veux", "veux", "veut", "voulons", "voulez", "veulent"]
+devenir_p = ["deviens", "deviens", "devient", "devenons","devenez", "deviennent"]
+present = [etre_p, avoir_p, aller_p, voir_p, devoir_p, vouloir_p, devenir_p]
+
+maison_d_etre = ["naitre", "monter", "entrer", "arriver", "aller", "venir", "revenir", "devenir", "rester", "retourner", "descendre", "mourir", "tomber", "sortir", "partir"]
+passe_compose = ["été", "eu", "fini", "fait", "bu", "pris", "su", "connu", "venu", "tenu", "voulu", "pu", "dit", "dormi", "servi", "devenu"]
+
+aller_c = "ir"
+faire_c = "fer"
+avoir_c = "aur"
+etre_c = "ser"
+devoir_c = "devr"
+pouvoir_c = "pourr"
+savoir_c = "saur"
+venir_c = "viendr"
+voir_c = "verr"
+vouloir_c = "voudr"
+conditional_future = [aller_c, faire_c, avoir_c, etre_c, devoir_c, pouvoir_c, savoir_c, venir_c, voir_c, vouloir_c]
+
+#endings for non-exception verbs
+er_p_ending = ["e", "es", "e", "ons", "ez", "ent"]
+ir_p_ending = ["is", "is", "it", "ons", "ez", "ent"]
+re_p_ending = ["s", "s", "", "ons", "ez", "ent"]
+p_endings = [er_p_ending, ir_p_ending, re_p_ending]
+
+all_i_endings = ["ais", "ais", "ait", "ions", "iez", "aient"]
+c_i_endings = [all_i_endings, all_i_endings, all_i_endings]
+
+er_pc_endings = ["é(e)", "é", "é(e)", "é(e)(s)", "é(e)(s)", "é(e)(s)"]
+ir_pc_endings = ["i(e)", "i", "i(e)", "i(e)(s)", "i(e)(s)", "i(e)(s)"]
+re_pc_endings = ["u(e)", "u", "u(e)", "u(e)(s)", "u(e)(s)", "u(e)(s)"]
+pc_endings = [er_pc_endings, ir_pc_endings, re_pc_endings]
+
+all_f_endings = ["ai", "as", "a", "ons", "ez", "ont"]
+f_endings = [all_f_endings, all_f_endings, all_f_endings]
+
+all_endings = [p_endings, c_i_endings, pc_endings, c_i_endings, f_endings]
+
+#input of verb tense + verb and allows user to enter in their guess
+def check_answer(verb, tense, guess, pronoun):
+    if verb[-2] == "e":
+        type_verb = 0
+    elif verb[-2] == "i":
+        type_verb = 1
+    elif verb[-2] == "r":
+        type_verb = 2
+
+    #calls the check_exceptions function and inputs parameters
+    if not check_exceptions(verb, tense, guess, pronoun, type_verb):
+        verb_length = len(verb)
+        no_end = verb_length - 2
+    
+        if type_verb == 1 and (tense == 2 or (tense == 1 and pronoun >= 3)):
+            root = verb[0:no_end]
+            root += "iss"
+            
+            if verb == "avoir":
+                root = "av"
+        
+        elif tense == 2:
+            if verb == "etre":
+                root = "ét"
+        
+        elif tense == 5:
+            root = verb
+            
+        else:
+            root = verb[0:no_end]
+        
+        ending = all_endings[tense-1][type_verb][pronoun]
+        
+        correct = str(root) + str(ending)
+        
+        if correct == guess:
+            print("C'est exact!")
+        else:
+            print("Désolé, la vraie réponse est: " + correct)
+            print("")
+
+def check_exceptions(verb, tense, guess, pronoun, type_verb):
+    #goes through all items (list of verbs) nested in the list of exceptions
+    for num, item in enumerate(list_of_exceptions[tense - 1]):
+        #when an item is found to match with the verb inputted by the user, 
+        #this code checks which tense it is a part of and generates the answer
+        #based on the tense and pronoun inputted as a parameter
+        if item == verb:
+            #gets the tense to access answer
+            if tense == 1:
+                answer = present[num][pronoun]
+            
+            elif tense == 3:
+                for index, etre_verb in enumerate(maison_d_etre):
+                    if verb == etre_verb:
+                        helping_verb = etre_p[pronoun]
+                        break
+                    
+                    helping_verb = avoir_p[pronoun]
+                        
+                for number, irregular in enumerate(exceptions_pc):
+                        if verb == irregular:
+                            past_participle = passe_compose[number]
+                            break
+                            
+                        past_participle = pc_endings[type_verb][pronoun]
+                
+                answer = helping_verb + " " + past_participle
+               
+            elif tense == 4:
+                root = conditional_future[num] 
+                ending = all_i_endings[pronoun]
+                answer = root + ending
+            
+            elif tense == 5:
+                root = conditional_future[num]
+                ending = f_endings[type_verb][pronoun]
+                answer = root + ending
+                
+            
+            #prints whether or not the user got the answer correct
+            if answer == guess:
+                print("C'est exact!")
+            else:
+                print("Désolé, la vraie réponse est: " + str(PRONOUNS[pronoun]) + " " + answer)
+            
+            #returns a true value so that the if statement in the check_answer portion is not run, exits program
+            return True
+    
+    #if not already exited from code, program returns false to indicate that the verb was not an exception
+    return False
+                
+#randomly generates a number to be used to access that number in the PRONOUNS list 
+def generate_pronoun():
+    num = random.randint(0, len(PRONOUNS) - 1)
+    return num
+
+#repeats indefinitely until user prints none or 00 during the appropriate question, ending the code
+while True:
+    practice = input("Quel verb voudriez-vous practiquer? Si vous voudriez de quitter, imprimez 'none'. ")
+    if practice == "none":
+        break
+    
+    print("")
+    for index, item in enumerate(TENSES):
+        print(str(index + 1) + ": " + item)
+    print("")
+    
+    #ensure that the user enters in an appropriate number within range for the tenses
+    try:
+        tense = int(input("Quel tense voudriez-vous practiquer? Choisissez le nombre correspondant. Si vous voudriez de quitter, imprimez '00' "))
+        if tense == 00:
+            break
+        if tense < 0 or tense > len(TENSES):
+            print("Desolé, nous n'avons pas ce tense.")
+            print("Nous allons quitter ce programme maintenant. Nous vous remercions d'avance.")
+            break
+    except ValueError:
+        print("Vous ne pouvez pas utiliser ça!")
+        print("Desolé, nous devons quitter ce programme. Nous vous remercions d'avance.")
+        break
+    
+    #calls generate_pronoun function to prepare for the question
+    pronoun = generate_pronoun()
+    
+    #prints the pronoun, tense, and verb that the user has to input their guess for
+    guess = input(str(TENSES[tense - 1]) + ": " + str(PRONOUNS[pronoun]) + " (" + practice + ") Votre reponse: ")
+    #calls the check_answer function to see if user got it right
+    check_answer(practice, tense, guess, pronoun)
+
+#if while loop is exited, code thanks user for using the program before stopping
+print("Merci pour utiliser notre lien! À bientôt.")
